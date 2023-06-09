@@ -7,11 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.common.HttpMessage;
-import org.apache.camel.main.Main;
+import org.apache.camel.impl.DefaultCamelContext;
 
 /**
  *
@@ -22,10 +23,11 @@ public class CamelJettyFormMap {
     public static void main(String[] args) throws Exception {
 
         // starting camel
-        Main main = new Main();
+        CamelContext ctx = new DefaultCamelContext();
+
         ObjectMapper mapper = new JsonMapper();
 
-        main.configure().addRoutesBuilder(new RouteBuilder() {
+        ctx.addRoutes(new RouteBuilder() {
 
             @Override
             public void configure() throws Exception {
@@ -49,13 +51,13 @@ public class CamelJettyFormMap {
                     }
                 };
 
-                from("jetty:http://0.0.0.0:8585?matchOnUriPrefix=true&enableMultipartFilter=true")
+                from("jetty:http://0.0.0.0:8080?matchOnUriPrefix=true&enableMultipartFilter=true")
                         .process(dispatcher);
 
             }
         });
 
-        main.run();
+        ctx.start();
 
     }
 }
