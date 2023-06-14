@@ -24,6 +24,7 @@ public class CamelJettyFormMap {
 
         // starting camel
         CamelContext ctx = new DefaultCamelContext();
+        //ctx.setStreamCaching(false);
 
         ObjectMapper mapper = new JsonMapper();
 
@@ -38,12 +39,17 @@ public class CamelJettyFormMap {
                     public void process(Exchange exchange) throws Exception {
                         HttpMessage http = exchange.getIn(HttpMessage.class);
                         HttpServletRequest request = http.getRequest();
+//                        String param = http.getRequest().getParameter("login");
                         String method = request.getMethod();
                         if ("POST".equals(method) || "PUT".equals(method)) {
+                            //String param = http.getRequest().getParameter("login");
                             Map map = http.getBody(Map.class);
                             String string = http.getBody(String.class);
                             http.setHeader(Exchange.CONTENT_TYPE, "text/plain");
-                            http.setBody("json: " + mapper.writeValueAsString(map) + ", and string:" + string);
+                            http.setBody("Map as json: " + mapper.writeValueAsString(map) + ",\n"
+                                    // + "the first field read by the Servlet API: " + param + ",\n"
+                                    // + "all fields read by the Servlet API: " + mapper.writeValueAsString(request.getParameterMap()) + ",\n"
+                                    + "and the full payload as string is:" + string);
                         } else {
                             http.setHeader(Exchange.CONTENT_TYPE, "text/html");
                             http.setBody(this.getClass().getResourceAsStream("form.html"));
